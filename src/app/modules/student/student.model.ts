@@ -76,13 +76,11 @@ const localGuardian = new Schema<LocalGuardian>({
 const studentSchema = new Schema<TStudent>({
   id: {
     type: String,
-    required: [true, 'Student ID is required'],
-    unique: true,
+    require: true,
   },
   user: {
     type: Schema.Types.ObjectId,
     required: [true, 'User ID is required'],
-    unique: true,
     ref: 'User',
   },
   name: {
@@ -102,11 +100,11 @@ const studentSchema = new Schema<TStudent>({
   email: {
     type: String,
     required: [true, 'Email is required'],
-    unique: true,
     validate: {
       validator: (value) => validator.isEmail(value),
       message: '{VALUE} is not a valid email type',
     },
+    unique: true,
   },
   contactNo: {
     type: String,
@@ -138,6 +136,10 @@ const studentSchema = new Schema<TStudent>({
     required: [true, 'Local guardian information is required'],
   },
   profileImg: { type: String },
+  admissionSemester: {
+    type: Schema.Types.ObjectId,
+    ref: 'AcademicSemester',
+  },
   isDeleted: {
     type: Boolean,
     default: false,
