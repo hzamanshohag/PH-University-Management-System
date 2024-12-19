@@ -1,10 +1,7 @@
-
 import { StudentServices } from './student.service';
 import sendResponse from '../../utils/sendResponse';
 import { HttpStatus } from 'http-status-ts';
 import catchAsync from '../../utils/catchAsync';
-
-
 
 const getStudents = catchAsync(async (req, res) => {
   const result = await StudentServices.getAllStudentFromDB();
@@ -29,7 +26,7 @@ const singleStudent = catchAsync(async (req, res) => {
 
 const createStudent = catchAsync(async (req, res) => {
   const { password, student: studentData } = req.body;
-
+  console.log(studentData);
   const result = await StudentServices.createStudentIntoDB(
     password,
     studentData,
