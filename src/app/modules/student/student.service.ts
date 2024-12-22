@@ -84,37 +84,79 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
 const deleteStudentIntoDB = async (id: string) => {
   const session = await mongoose.startSession();
   try {
-    session.startTransaction()
+    session.startTransaction();
     const deleteStudent = await StudentModel.findOneAndUpdate(
       { id },
       { isDeleted: true },
       { new: true, session },
     );
-    console.log(deleteStudent)
-    if (!deleteStudent){
-      throw new AppError(HttpStatus.BAD_REQUEST,'Faild to delete student')
-    } 
-    
+    console.log(deleteStudent);
+    if (!deleteStudent) {
+      throw new AppError(HttpStatus.BAD_REQUEST, 'Faild to delete student');
+    }
+
     const deleteUser = await User.findOneAndUpdate(
       { id },
       { isDeleted: true },
       { new: true, session },
     );
 
-     if (!deleteUser) {
-       throw new AppError(HttpStatus.BAD_REQUEST, 'Faild to delete user');
-     } 
-    
-     await session.commitTransaction()
-     await session.endSession()
-    return deleteStudent;
-  // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
-  } catch (err) {
-    await session.abortTransaction()
+    if (!deleteUser) {
+      throw new AppError(HttpStatus.BAD_REQUEST, 'Faild to delete user');
+    }
+
+    await session.commitTransaction();
     await session.endSession();
-    throw err
+    return deleteStudent;
+    // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
+  } catch (err) {
+    await session.abortTransaction();
+    await session.endSession();
+    throw err;
   }
-  
+};
+
+const updateStudentFromDB = async (id: string, payload: Partial<TStudent>) => {
+  const { name, guardian, localGuardian, ...remainingStudentData } = payload;
+
+  const modifiedUpdatedData: Record<string, unknown> = {
+    ...remainingStudentData,
+  };
+
+  /*
+  guardian: {
+    "fatherOccupation": "Chef"
+  }
+  guardian.fatherOccupation = 'Chef'
+  name.firstname = 'Md'
+  name.lastName = 'Hasan'
+   */
+
+  if (name && Object.keys(name).length) {
+    for (const [key, value] of Object.entries(name)) {
+      modifiedUpdatedData[`name.${key}`] = value;
+    }
+  }
+  if (guardian && Object.keys(guardian).length) {
+    for (const [key, value] of Object.entries(guardian)) {
+      modifiedUpdatedData[`guardian.${key}`] = value;
+    }
+  }
+  if (localGuardian && Object.keys(localGuardian).length) {
+    for (const [key, value] of Object.entries(localGuardian)) {
+      modifiedUpdatedData[`localGuardian.${key}`] = value;
+    }
+  }
+console.log(modifiedUpdatedData)
+  const result = await StudentModel.findOneAndUpdate(
+    { id },
+    modifiedUpdatedData,
+    {
+      new:true,
+      runValidators:true
+    }
+  );
+  return result;
 };
 
 export const StudentServices = {
@@ -122,4 +164,5 @@ export const StudentServices = {
   getSingleStudentFromDB,
   createStudentIntoDB,
   deleteStudentIntoDB,
+  updateStudentFromDB,
 };

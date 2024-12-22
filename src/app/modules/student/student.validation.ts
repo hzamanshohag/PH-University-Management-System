@@ -45,7 +45,7 @@ const localGuardianSchema = z.object({
     .min(1, { message: "Local guardian's address is required" }),
 });
 
-const studentSchema = z.object({
+const createStudentSchema = z.object({
   body: z.object({
     password: z.string().optional().default('phuniversity!@#'),
     student: z.object({
@@ -86,6 +86,69 @@ const studentSchema = z.object({
   }),
 });
 
-export const zodValidation = {
-  studentSchema,
+const updateUserNameSchema = z.object({
+  firstname: z
+    .string()
+    .max(20, { message: 'Name cannot be more than 20 characters' })
+    .trim()
+    .optional(),
+  middleName: z.string().optional(),
+  lastName: z
+    .string()
+    .refine((value) => /^[A-Za-z]*$/.test(value), {
+      message: 'Last name must contain only alphabets',
+    })
+    .optional(),
+});
+
+const updateGuardianSchema = z.object({
+  fatherName: z.string().optional(),
+  fatherOccupation: z.string().optional(),
+  fatherContactNo: z.string().optional(),
+  motherName: z.string().optional(),
+  motherOccupation: z.string().optional(),
+  motherContactNo: z.string().optional(),
+});
+
+const updateLocalGuardianSchema = z.object({
+  name: z.string().optional(),
+  occupation: z.string().optional(),
+  contactNo: z.string().optional(),
+  address: z.string().optional(),
+});
+
+const updateStudentSchema = z.object({
+  body: z
+    .object({
+      student: z
+        .object({
+          name: updateUserNameSchema.optional(),
+          gender: z.enum(['male', 'female', 'other']).optional(),
+          dateOfBirth: z.string().optional(),
+          email: z
+            .string()
+            .email({ message: 'Invalid email format' })
+            .optional(),
+          contactNo: z.string().optional(),
+          emergeyContactNo: z.string().optional(),
+          bloodGroup: z
+            .enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'])
+            .optional(),
+          presentAddress: z.string().optional(),
+          permanentAddress: z.string().optional(),
+          guardian: updateGuardianSchema.optional(),
+          localGuardian: updateLocalGuardianSchema.optional(),
+          profileImg: z.string().optional(),
+          admissionSemester: z.string().optional(),
+          academicDepartment: z.string().optional(),
+          isDeleted: z.boolean().optional(),
+        })
+        .optional(),
+    })
+    .optional(),
+});
+
+export const StudentValidation = {
+  createStudentSchema,
+  updateStudentSchema,
 };

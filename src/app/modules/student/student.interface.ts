@@ -1,5 +1,11 @@
 import { Types } from 'mongoose';
 
+export type UserName = {
+  firstname: string;
+  middleName: string;
+  lastName: string;
+};
+
 export type Guardian = {
   fatherName: string;
   fatherOccupation: string;
@@ -7,12 +13,6 @@ export type Guardian = {
   motherName: string;
   motherOccupation: string;
   motherContactNo: string;
-};
-
-export type UserName = {
-  firstname: string;
-  middleName: string;
-  lastName: string;
 };
 
 export type LocalGuardian = {
