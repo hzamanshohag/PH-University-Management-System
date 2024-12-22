@@ -7,6 +7,7 @@ const router = express.Router();
 
 router.get('/', StudentControllers.getStudents);
 router.get('/:studentId', StudentControllers.singleStudent);
+router.delete('/:studentId', StudentControllers.deleteStudent);
 router.post(
   '/create-student',
   validateRequests(zodValidation.studentSchema),
