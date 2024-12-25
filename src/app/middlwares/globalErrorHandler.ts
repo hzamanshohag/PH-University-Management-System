@@ -1,22 +1,72 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
+import { ErrorRequestHandler } from 'express';
+import { ZodError } from 'zod';
+import { TErrorSources } from '../interface/error';
+import config from '../config';
+import handleZodError from '../errors/handleZodError';
+import handlevalidationError from '../errors/handlevalidationError';
+import handleCastError from '../errors/handleCastError';
+import handleDuplicateError from '../errors/handleDuplicateError';
+import { AppError } from '../errors/AppError';
 
-import { NextFunction, Request, Response } from 'express';
+const globalErrorHandler: ErrorRequestHandler = (err, req, res, next) => {
+  //setting default values
+  console.log(err)
+  let statusCode = 500;
+  let message = 'Something went wrong!';
 
-const globalErrorHandler = (
-  err: any,
-  req: Request,
-  res: Response,
-  next: NextFunction,
-) => {
-  const statusCode = err.statusCode || 500;
-  const message = err.message || 'Something went wrong!';
+  let errorSources: TErrorSources = [
+    {
+      path: '',
+      message: 'Something went wrong!',
+    },
+  ];
 
+  if (err instanceof ZodError) {
+    const simplifiedError = handleZodError(err);
+    statusCode = simplifiedError?.statusCode;
+    message = simplifiedError?.message;
+    errorSources = simplifiedError?.errorSources;
+  } else if (err?.name === 'ValidationError') {
+    const simplifiedErrorMDB = handlevalidationError(err);
+    statusCode = simplifiedErrorMDB?.statusCode;
+    message = simplifiedErrorMDB?.message;
+    errorSources = simplifiedErrorMDB?.errorSources;
+  } else if (err?.name === 'CastError') {
+    const simplifiedErrorMDB = handleCastError(err);
+    statusCode = simplifiedErrorMDB?.statusCode;
+    message = simplifiedErrorMDB?.message;
+    errorSources = simplifiedErrorMDB?.errorSources;
+  } else if (err?.code === 11000) {
+    const simplifiedErrorMDB = handleDuplicateError(err);
+    statusCode = simplifiedErrorMDB?.statusCode;
+    message = simplifiedErrorMDB?.message;
+    errorSources = simplifiedErrorMDB?.errorSources;
+  } else if (err instanceof AppError) {
+    statusCode = err?.statusCode;
+    message = err?.message;
+    errorSources = [
+      {
+        path: '',
+        message: err.message,
+      },
+    ];
+  } else if (err instanceof Error) {
+    message = err?.message;
+    errorSources = [
+      {
+        path: '',
+        message: err.message,
+      },
+    ];
+  }
   res.status(statusCode).json({
     success: false,
     message,
-    error: err,
+    errorSources,
+    err,
+    stack: config.NODE_ENV === 'development' ? err?.stack : null,
   });
 };
 export default globalErrorHandler;

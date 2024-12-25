@@ -7,13 +7,19 @@ app.use(express.json());
 
 app.use('/api/v1', router);
 
+
+// const test = async (req: Request, res: Response) => {
+//   Promise.reject();
+// };
+
+// app.get('/', test);
+
 const getAController = (req: Request, res: Response) => {
   res.send('Hello World!');
 };
 
 app.get('/', getAController);
 app.use(globalErrorHandler);
-app.use(notFound)
-
+app.use(notFound);
 
 export default app;

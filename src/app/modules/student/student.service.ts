@@ -8,16 +8,88 @@ import { TStudent } from './student.interface';
 import { StudentModel } from './student.model';
 import { AppError } from '../../errors/AppError';
 import mongoose from 'mongoose';
+import QueryBuilder from '../../builder/QueryBuilder';
+import { studentSearchableFields } from './student.constant';
 
-const getAllStudentFromDB = async () => {
-  const result = await StudentModel.find()
-    .populate('admissionSemester')
+const getAllStudentFromDB = async (query: Record<string, unknown>) => {
+  // console.log('base query', query);
+
+  // const queryObj = { ...query }; //copy
+
+  // const studentSearchableFields = ['email', 'name.firstname', 'presentAddress'];
+
+  // let searchTerm = '';
+  // if (query?.searchTerm) {
+  //   searchTerm = query?.searchTerm as string;
+  // }
+
+  // const searchQuery = StudentModel.find({
+  //   $or: studentSearchableFields.map((field) => ({
+  //     [field]: { $regex: searchTerm, $options: 'i' },
+  //   })),
+  // });
+
+  // const excludeFields = ['searchTerm', 'sort', 'limit', 'page', 'fields'];
+
+  // excludeFields.forEach((el) => delete queryObj[el]);
+  // console.log({ query }, 'queryObj', { queryObj });
+
+  // const filterQuery = searchQuery
+  //   .find(queryObj)
+  //   .populate('admissionSemester')
+  //   .populate({
+  //     path: 'academicDepartment',
+  //     populate: {
+  //       path: 'academicfaculty',
+  //     },
+  //   });
+
+  // let sort = '-createdAt';
+  // if (query.sort) {
+  //   sort = query.sort as string;
+  // }
+  // const sortQuery = filterQuery.sort(sort);
+
+  // let page = 1;
+  // let limit = 1;
+  // let skip = 1;
+  // if (query.limit) {
+  //   limit = Number(query.limit);
+  // }
+
+  // if (query.page) {
+  //   page = Number(query.page);
+  //   skip = (page - 1) * limit;
+  // }
+
+  // const paginateQuery = sortQuery.skip(skip);
+  // const limitQuery = paginateQuery.limit(limit);
+
+  // field limiting
+  // let fields = '-_v';
+
+  // if (query.fields) {
+  //   fields = (query.fields as string).split(',').join(' ');
+  // }
+
+  // const fieldQuery = await limitQuery.select(fields);
+
+  // return fieldQuery;
+
+  const studentQuery = new QueryBuilder(StudentModel.find() .populate('admissionSemester')
     .populate({
       path: 'academicDepartment',
       populate: {
         path: 'academicfaculty',
       },
-    });
+    }), query)
+    .search(studentSearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+
+  const result = await studentQuery.modelQuery;
   return result;
 };
 
@@ -46,7 +118,7 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
   );
 
   if (!admissionSemester) {
-    throw new AppError(HttpStatus.NOT_FOUND, 'Academic semester not found');
+    throw new Error('Academic semester not found');
   }
 
   const session = await mongoose.startSession();
@@ -59,7 +131,7 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
     const newUser = await User.create([userData], { session });
 
     if (!newUser.length) {
-      throw new AppError(HttpStatus.BAD_REQUEST, 'Faild to create user');
+      throw new Error('Faild to create user');
     }
 
     payload.id = newUser[0].id;
@@ -69,15 +141,17 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
     const newStudent = await StudentModel.create([payload], { session });
 
     if (!newStudent.length) {
-      throw new AppError(HttpStatus.BAD_REQUEST, 'Faild to create student');
+      throw new Error('Faild to create student');
     }
     await session.commitTransaction();
     await session.endSession();
     return newStudent;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars, no-unused-vars
-  } catch (err) {
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  } catch (err: any) {
     await session.abortTransaction();
     await session.endSession();
+    throw new Error(err);
   }
 };
 
@@ -108,7 +182,6 @@ const deleteStudentIntoDB = async (id: string) => {
     await session.commitTransaction();
     await session.endSession();
     return deleteStudent;
-    // eslint-disable-next-line no-unused-vars, @typescript-eslint/no-unused-vars
   } catch (err) {
     await session.abortTransaction();
     await session.endSession();
@@ -147,14 +220,14 @@ const updateStudentFromDB = async (id: string, payload: Partial<TStudent>) => {
       modifiedUpdatedData[`localGuardian.${key}`] = value;
     }
   }
-console.log(modifiedUpdatedData)
+  // console.log(modifiedUpdatedData)
   const result = await StudentModel.findOneAndUpdate(
     { id },
     modifiedUpdatedData,
     {
-      new:true,
-      runValidators:true
-    }
+      new: true,
+      runValidators: true,
+    },
   );
   return result;
 };
