@@ -153,9 +153,9 @@ const studentSchema = new Schema<TStudent>({
 });
 
 studentSchema.pre('findOneAndUpdate', async function (next) {
-  const studentId = this.getQuery();
+  const id = this.getQuery();
   // console.log('studentId', studentId);
-  const isDeletedIdExist = await StudentModel.findOne({id:studentId.id });
+  const isDeletedIdExist = await StudentModel.findById(id );
   // console.log('isDeletedIdExist', isDeletedIdExist);
   if (!isDeletedIdExist) {
     throw new AppError(HttpStatus.NOT_FOUND, 'This student does not exist!');

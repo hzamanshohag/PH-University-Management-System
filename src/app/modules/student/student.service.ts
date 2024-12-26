@@ -76,13 +76,17 @@ const getAllStudentFromDB = async (query: Record<string, unknown>) => {
 
   // return fieldQuery;
 
-  const studentQuery = new QueryBuilder(StudentModel.find() .populate('admissionSemester')
-    .populate({
-      path: 'academicDepartment',
-      populate: {
-        path: 'academicfaculty',
-      },
-    }), query)
+  const studentQuery = new QueryBuilder(
+    StudentModel.find()
+      .populate('admissionSemester')
+      .populate({
+        path: 'academicDepartment',
+        populate: {
+          path: 'academicfaculty',
+        },
+      }),
+    query,
+  )
     .search(studentSearchableFields)
     .filter()
     .sort()
@@ -94,7 +98,7 @@ const getAllStudentFromDB = async (query: Record<string, unknown>) => {
 };
 
 const getSingleStudentFromDB = async (id: string) => {
-  const result = await StudentModel.findOne({ id })
+  const result = await StudentModel.findById(id)
     .populate('admissionSemester')
     .populate({
       path: 'academicDepartment',
@@ -156,21 +160,25 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
 };
 
 const deleteStudentIntoDB = async (id: string) => {
+  // console.log(id)
   const session = await mongoose.startSession();
   try {
     session.startTransaction();
-    const deleteStudent = await StudentModel.findOneAndUpdate(
-      { id },
+    const deleteStudent = await StudentModel.findByIdAndUpdate(
+      id,
       { isDeleted: true },
       { new: true, session },
     );
-    console.log(deleteStudent);
+    // console.log(deleteStudent);
     if (!deleteStudent) {
       throw new AppError(HttpStatus.BAD_REQUEST, 'Faild to delete student');
     }
 
-    const deleteUser = await User.findOneAndUpdate(
-      { id },
+    //get user _id from deletedStudent
+    const userId = deleteStudent.user;
+
+    const deleteUser = await User.findByIdAndUpdate(
+      userId,
       { isDeleted: true },
       { new: true, session },
     );
@@ -221,14 +229,10 @@ const updateStudentFromDB = async (id: string, payload: Partial<TStudent>) => {
     }
   }
   // console.log(modifiedUpdatedData)
-  const result = await StudentModel.findOneAndUpdate(
-    { id },
-    modifiedUpdatedData,
-    {
-      new: true,
-      runValidators: true,
-    },
-  );
+  const result = await StudentModel.findByIdAndUpdate(id, modifiedUpdatedData, {
+    new: true,
+    runValidators: true,
+  });
   return result;
 };
 
