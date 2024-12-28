@@ -8,7 +8,7 @@ const router = express.Router();
 export const validateRequests = (schema: AnyZodObject) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log(req.body)
+      // console.log(req.body)
       await schema.parseAsync({
         body: req.body,
       });

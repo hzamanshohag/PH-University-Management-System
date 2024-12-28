@@ -28,7 +28,7 @@ const getSingleAdminFromDB = async (id: string) => {
 
 const updateAdminIntoDB = async (id: string, payload: Partial<TAdmin>) => {
   const { name, ...remainingAdminData } = payload;
-  console.log(id);
+  // console.log(id);
 
   const modifiedUpdatedData: Record<string, unknown> = {
     ...remainingAdminData,

@@ -53,8 +53,9 @@ const deleteCourse = catchAsync(async (req, res) => {
 
 const updateCourse = catchAsync(async (req, res) => {
   const { id } = req.params;
+  // console.log(req.body);
   const result = await CourseServices.updateCourseIntoDB(id, req.body);
-
+  
   sendResponse(res, {
     statusCode: HttpStatus.OK,
     success: true,
@@ -64,39 +65,39 @@ const updateCourse = catchAsync(async (req, res) => {
 });
 
 
-// const assignFacultiesWithCourse = catchAsync(async (req, res) => {
-//   const { courseId } = req.params;
-//   const { faculties } = req.body;
+const assignFacultiesWithCourse = catchAsync(async (req, res) => {
+  const { courseId } = req.params;
+  const { faculties } = req.body;
 
-//   const result = await CourseServices.assignFacultiesWithCourseIntoDB(
-//     courseId,
-//     faculties,
-//   );
+  const result = await CourseServices.assignFacultiesWithCourseIntoDB(
+    courseId,
+    faculties,
+  );
 
-//   sendResponse(res, {
-//     statusCode: HttpStatus.OK,
-//     success: true,
-//     message: 'Faculties assigned  succesfully',
-//     data: result,
-//   });
-// });
+  sendResponse(res, {
+    statusCode: HttpStatus.OK,
+    success: true,
+    message: 'Faculties assigned  succesfully',
+    data: result,
+  });
+});
 
-// const removeFacultiesFromCourse = catchAsync(async (req, res) => {
-//   const { courseId } = req.params;
-//   const { faculties } = req.body;
+const removeFacultiesFromCourse = catchAsync(async (req, res) => {
+  const { courseId } = req.params;
+  const { faculties } = req.body;
 
-//   const result = await CourseServices.removeFacultiesFromCourseFromDB(
-//     courseId,
-//     faculties,
-//   );
+  const result = await CourseServices.removeFacultiesFromCourseFromDB(
+    courseId,
+    faculties,
+  );
 
-//   sendResponse(res, {
-//     statusCode: HttpStatus.OK,
-//     success: true,
-//     message: 'Faculties removed  succesfully',
-//     data: result,
-//   });
-// });
+  sendResponse(res, {
+    statusCode: HttpStatus.OK,
+    success: true,
+    message: 'Faculties removed  succesfully',
+    data: result,
+  });
+});
 
 export const CourseControllers = {
   createCourse,
@@ -104,4 +105,6 @@ export const CourseControllers = {
   getAllCourses,
   deleteCourse,
   updateCourse,
+  assignFacultiesWithCourse,
+  removeFacultiesFromCourse,
 };

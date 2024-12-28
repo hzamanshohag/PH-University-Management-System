@@ -6,7 +6,7 @@ import { AdminServices } from './admin.service';
 
 const getSingleAdmin = catchAsync(async (req, res) => {
   const { id } = req.params;
-  console.log(id)
+  // console.log(id)
   const result = await AdminServices.getSingleAdminFromDB(id);
 
   sendResponse(res, {

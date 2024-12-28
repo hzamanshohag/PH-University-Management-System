@@ -18,3 +18,8 @@ export type TCoursefaculty = {
   course: Types.ObjectId;
   faculties: [Types.ObjectId];
 };
+
+export type CourseFaculty = {
+  course: Types.ObjectId;
+  faculties: [Types.ObjectId];
+};
