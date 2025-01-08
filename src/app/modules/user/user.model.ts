@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { model, Schema } from 'mongoose';
-import { Tuser } from './user.interface';
+import { Tuser, UserModel } from './user.interface';
 import config from '../../config';
 import bcrypt from 'bcrypt';
 
-const userSchema = new Schema<Tuser>(
+const userSchema = new Schema<Tuser, UserModel>(
   {
     id: {
       type: String,
@@ -49,4 +50,15 @@ userSchema.post('save', function (doc, next) {
   next();
 });
 
-export const User = model<Tuser>('User', userSchema);
+userSchema.statics.isUserExistsByCustomId = async function (id: string) {
+  return await User.findOne({ id });
+};
+
+userSchema.statics.isPasswordMatched = async function (
+  plainTextPassword,
+  hashedPassword,
+) {
+  return await bcrypt.compare(plainTextPassword, hashedPassword);
+};
+
+export const User = model<Tuser, UserModel>('User', userSchema);
