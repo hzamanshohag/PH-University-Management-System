@@ -49,6 +49,7 @@ const auth = (...requiredRoles: TUserRole[]) => {
     ) {
       throw new AppError(HttpStatus.UNAUTHORIZED, 'This are not authorized !');
     }
+    
     if (requiredRoles && !requiredRoles.includes(role)) {
       throw new AppError(HttpStatus.UNAUTHORIZED, 'You are not authorized!');
     }
