@@ -1,13 +1,13 @@
 import express from 'express';
-import { validateRequests } from '../user/user.router';
 import { SemesterRegistrationValidations } from './SemesterRegistration.validation';
 import { SemesterRegistrationController } from './semesterRegistration.controller';
+import { validateRequest } from '../../middlwares/validateRequest';
 
 const router = express.Router();
 
 router.post(
   '/create-semester-registration',
-  validateRequests(
+  validateRequest(
     SemesterRegistrationValidations.createSemesterRegistrationValidation,
   ),
   SemesterRegistrationController.createSemesterRegistration,
@@ -20,7 +20,7 @@ router.get(
 );
 router.patch(
   '/:id',
-  validateRequests(
+  validateRequest(
     SemesterRegistrationValidations.updateSemesterRegistrationValidation,
   ),
   SemesterRegistrationController.updateSemesterRegistration,

@@ -1,12 +1,12 @@
 import express from 'express';
-import { validateRequests } from '../user/user.router';
 import { academicFacultyValidation } from './academicFaculty.validation';
 import { AcademicFacultyController } from './academicFaculty.controller';
+import { validateRequest } from '../../middlwares/validateRequest';
 const router = express.Router();
 
 router.post(
   '/create-academic-faculty',
-  validateRequests(
+  validateRequest(
     academicFacultyValidation.createAcademicFacultyValidationSchema,
   ),
   AcademicFacultyController.createAcademicFaculty,

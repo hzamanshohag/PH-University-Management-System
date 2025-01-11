@@ -1,9 +1,7 @@
-
 import { HttpStatus } from 'http-status-ts';
 import catchAsync from '../../utils/catchAsync';
 import sendResponse from '../../utils/sendResponse';
 import { FacultyServices } from './faculty.service';
-
 
 const getSingleFaculty = catchAsync(async (req, res) => {
   const { id } = req.params;
@@ -19,7 +17,7 @@ const getSingleFaculty = catchAsync(async (req, res) => {
 
 const getAllFaculties = catchAsync(async (req, res) => {
   const result = await FacultyServices.getAllFacultiesFromDB(req.query);
-
+  console.log('test', req.user);
   sendResponse(res, {
     statusCode: HttpStatus.OK,
     success: true,

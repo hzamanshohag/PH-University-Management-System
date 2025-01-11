@@ -1,13 +1,13 @@
 import express from 'express';
 import { CourseValidations } from './course.validation';
-import { validateRequests } from '../user/user.router';
 import { CourseControllers } from './course.controller';
+import { validateRequest } from '../../middlwares/validateRequest';
 
 const router = express.Router();
 
 router.post(
   '/create-course',
-  validateRequests(CourseValidations.createCourseValidationSchema),
+  validateRequest(CourseValidations.createCourseValidationSchema),
   CourseControllers.createCourse,
 );
 router.get('/', CourseControllers.getAllCourses);
@@ -15,7 +15,7 @@ router.get('/:id', CourseControllers.getSingleCourse);
 
 router.patch(
   '/:id',
-  validateRequests(CourseValidations.updateCourseValidationSchema),
+  validateRequest(CourseValidations.updateCourseValidationSchema),
   CourseControllers.updateCourse,
 );
 
@@ -23,13 +23,13 @@ router.delete('/:id', CourseControllers.deleteCourse);
 
 router.put(
   '/:courseId/assign-faculties',
-  validateRequests(CourseValidations.FacultiesWithCourseValidationSchema),
+  validateRequest(CourseValidations.FacultiesWithCourseValidationSchema),
   CourseControllers.assignFacultiesWithCourse,
 );
 
 router.delete(
   '/:courseId/remove-faculties',
-  validateRequests(CourseValidations.FacultiesWithCourseValidationSchema),
+  validateRequest(CourseValidations.FacultiesWithCourseValidationSchema),
   CourseControllers.removeFacultiesFromCourse,
 );
 

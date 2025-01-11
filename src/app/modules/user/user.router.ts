@@ -1,33 +1,31 @@
-import express, { NextFunction, Request, Response } from 'express';
-import { AnyZodObject } from 'zod';
+import express from 'express';
 import { UserControllers } from './user.controller';
+import { validateRequest } from '../../middlwares/validateRequest';
 import { createFacultyValidationSchema } from '../Faculty/faculty.validation';
 import { createAdminValidationSchema } from '../Admin/admin.validation';
+import { StudentValidation } from '../student/student.validation';
+import auth from '../../middlwares/auth';
+import { USER_ROLE } from './user.constant';
 const router = express.Router();
 
-export const validateRequests = (schema: AnyZodObject) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      // console.log(req.body)
-      await schema.parseAsync({
-        body: req.body,
-      });
-      next();
-    } catch (error) {
-      next(error);
-    }
-  };
-};
+router.post(
+  '/create-student',
+  auth(USER_ROLE.admin),
+  validateRequest(StudentValidation.createStudentSchema),
+  UserControllers.createStudent,
+);
 
 router.post(
   '/create-faculty',
-  validateRequests(createFacultyValidationSchema),
+  auth(USER_ROLE.admin),
+  validateRequest(createFacultyValidationSchema),
   UserControllers.createFaculty,
 );
 
 router.post(
   '/create-admin',
-  validateRequests(createAdminValidationSchema),
+  // auth(USER_ROLE.admin),
+  validateRequest(createAdminValidationSchema),
   UserControllers.createAdmin,
 );
 
